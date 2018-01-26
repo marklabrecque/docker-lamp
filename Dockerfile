@@ -4,7 +4,7 @@ LABEL maintainer="FCV Interactive"
 
 # INCLUDES...
 #  - apache 2.4; ssl, rewrite, proxy, proxy_http, headers
-#  - php 7.2; xdebug, memcache, opcache, gd, bcmath
+#  - php 7.1; xdebug, memcache, opcache, gd, bcmath
 #  - composer
 #  - drush launcher
 #  - drupal console
@@ -152,39 +152,15 @@ RUN chmod 644 /usr/local/share/ca-certificates/sf_bundle-g2-g1.crt
 
 RUN update-ca-certificates
 
-
-
-### COMMENTING OUT THIS LAST CHUNK AS IT'S ONLY SERVER RELATED ###
-
-#ARG project_artifact
-#ARG NEXUS_USER
-#ARG NEXUS_PASS
-## Try fix aufs file permission issue
-## - https://github.com/moby/moby/issues/6047
-#RUN rm -rf /var/www/web && mkdir -p /var/www/web
-#
-## Extract project - Drupal code.
-#WORKDIR /var/www/
-#
-#RUN touch 1
-#RUN ls -lah
-#RUN curl -X GET -u $NEXUS_USER:$NEXUS_PASS $project_artifact -o project.tgz
-#RUN pwd
-#RUN ls .. -lah
-#RUN ls -lah
-#
-#RUN tar zxvf ./project.tgz && rm -f ./project.tgz
-
-### END SERVER CHUNK ###
-
-
-
 ## Try fix aufs file permission issue
 # - https://github.com/moby/moby/issues/6047
 RUN rm -rf /var/www/web \
   && mkdir -p /var/www/web/sites/default \
   && chmod a+x /var/www/web/sites/default \
   && chown www-data:www-data -R /var/www/web
+
+RUN usermod -aG www-data appuser
+RUN usermod -aG appuser www-data
 
 # Create mount point for sites/default/files
 VOLUME /var/www/web/sites/default/files

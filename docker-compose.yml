@@ -1,0 +1,60 @@
+# Adopt version 2 syntax:
+#   https://docs.docker.com/compose/compose-file/#/versioning
+version: '2'
+
+services:
+
+    mysql:
+      image: nexus.fcvhost.com/php/mysql55
+      ports:
+          - 3306:3306
+      expose:
+          - 3306
+      volumes:
+          - /var/lib/mysql
+      environment:
+          MYSQL_ROOT_PASSWORD: 123456
+          MYSQL_DATABASE: corp_d8_dev
+
+    phpmyadmin:
+      image: phpmyadmin/phpmyadmin
+      links:
+        - mysql:mysql
+      ports:
+        - 8001:80
+      environment:
+        PMA_HOST: mysql
+        PMA_USER: fcvadmin
+        PMA_PASSWORD: 123456
+        PHP_UPLOAD_MAX_FILESIZE: 1G
+        PHP_MAX_INPUT_VARS: 1G
+
+    drupal-dev:
+      image: localdev/web-php71-drupal-dev
+      ports:
+        - 80:80
+        - 443:443
+      links:
+        - mysql:mysql
+      volumes:
+        - ./drupal-project:/var/www
+
+
+# Set up vhost file, Drupal settings, httpd.conf etc.
+#            - ./drupal-project/web:/var/www/web
+            #- ./env/dev.settings.local.php:/var/www/html/sites/default/settings.local.php
+            #- ./docker/httpd/httpd-vhosts.conf:/etc/apache2/sites-available/httpd-vhosts.conf
+#            - ./drupal-project/config:/var/www/config
+#            - ./drupal-project/vendor:/var/www/vendor
+#            - ./drupal-project/drush:/var/www/drush
+#            - ./drupal-project/scripts:/var/www/scripts
+#            - ./drupal-project/patches:/var/www/patches
+#            - ./drupal-project/composer.json:/var/www/composer.json
+#            - ./drupal-project/composer.lock:/var/www/composer.lock
+#            - ./drupal-project/web/sites/default/files:/var/www/web/sites/default/files
+#            - ./ui:/var/www/ui
+#            - /var/www/ui/node_modules
+#            - ./ui:/var/www/web/themes/custom/corp_d8
+#            - ./env/dev.settings.local.php:/var/www/web/sites/default/settings.local.php
+#            - ./env/sites-enabled:/etc/apache2/sites-enabled
+#            - ./env/php.ini:/usr/local/etc/php/php.ini
